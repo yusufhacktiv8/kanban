@@ -16,7 +16,7 @@
             </h3>
           </div>
           <div class="panel-body">
-            <b-card class="mb-2" variant="" v-for="task in backLogs">
+            <b-card class="mb-2" variant="" v-for="task in tasks" v-if="task.status === 0">
               {{ task.description }}
               <div class="">
                 <b-button variant="danger" href="" @click="removeTask(task)">
@@ -36,7 +36,7 @@
             <h3 class="panel-title">Todo</h3>
           </div>
           <div class="panel-body">
-            <b-card class="mb-2" variant="" v-for="task in todos">
+            <b-card class="mb-2" variant="" v-for="task in tasks" v-if="task.status === 1">
               {{ task.description }}
               <div class="">
                 <b-button variant="info" href="" @click="backTask(task)">
@@ -56,7 +56,7 @@
             <h3 class="panel-title">Doing</h3>
           </div>
           <div class="panel-body">
-            <b-card class="mb-2" variant="" v-for="task in doings">
+            <b-card class="mb-2" variant="" v-for="task in tasks" v-if="task.status === 2">
               {{ task.description }}
               <div class="">
                 <b-button variant="info" href="" @click="backTask(task)">
@@ -76,7 +76,7 @@
             <h3 class="panel-title">Done</h3>
           </div>
           <div class="panel-body">
-            <b-card class="mb-2" variant="" v-for="task in dones">
+            <b-card class="mb-2" variant="" v-for="task in tasks" v-if="task.status === 3">
               {{ task.description }}
               <div class="">
                 <b-button variant="info" href="" @click="backTask(task)">
@@ -116,26 +116,16 @@ export default {
       this.$db.ref('mykanban').child(task['.key']).remove();
     },
     nextTask(task) {
-      const theTask = task;
+      const theTask = { ...task };
       theTask.status += 1;
+      delete theTask['.key'];
+      this.$db.ref('mykanban').child(task['.key']).set(theTask);
     },
     backTask(task) {
-      const theTask = task;
+      const theTask = { ...task };
       theTask.status -= 1;
-    },
-  },
-  computed: {
-    backLogs() {
-      return this.tasks.filter(task => task.status === 0);
-    },
-    todos() {
-      return this.tasks.filter(task => task.status === 1);
-    },
-    doings() {
-      return this.tasks.filter(task => task.status === 2);
-    },
-    dones() {
-      return this.tasks.filter(task => task.status === 3);
+      delete theTask['.key'];
+      this.$db.ref('mykanban').child(task['.key']).set(theTask);
     },
   },
   firebase() {
